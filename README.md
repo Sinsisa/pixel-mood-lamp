@@ -58,7 +58,11 @@ The generated header and HTML share 49 unique frames and 99 timed holds over 18,
 
 ## Manufacturing and support
 
-Thanks to **PCBWay** for helping bring the panel to life. A project ordering/referral link will be added when available. The Gerbers remain downloadable here so you can use your preferred manufacturer. Any future referral link will be labelled as such.
+Thanks to **PCBWay** for helping bring the panel to life. You can view and order the **LED panel board** through the [shared PCBWay project](https://www.pcbway.com/project/shareproject/RGB_LED_Panel_Board_3fa1912f.html). This link is for the LED board, not the complete lamp or controller.
+
+[![PCB from PCBWay](https://www.pcbway.com/project/img/images/frompcbway-1220.png)](https://www.pcbway.com/project/shareproject/RGB_LED_Panel_Board_3fa1912f.html)
+
+**Support disclosure:** Orders through this shared-project link may earn me a referral reward. The Gerbers remain downloadable here so you can use your preferred manufacturer. Check the PCBWay order options for component assembly; a bare PCB order does not include fitted LEDs.
 
 ## Licensing
 
