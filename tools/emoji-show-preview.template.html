@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Mood Lamp Animation Preview</title>
+  <style>
+    :root { color-scheme: light; --ink:#20211e; --muted:#6d7068; --paper:#f0eee8; --line:#d6d4cc; --orange:#d94b23; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:15px/1.5 "Segoe UI",Arial,sans-serif; }
+    button, input { font:inherit; }
+    button { -webkit-tap-highlight-color:transparent; }
+    button:focus-visible, input:focus-visible, a:focus-visible { outline:3px solid #cc4522; outline-offset:5px; }
+    button { cursor:pointer; color:inherit; }
+    .page { width:min(1232px,calc(100% - 64px)); margin:0 auto; padding:30px 0 24px; }
+    .masthead { display:flex; justify-content:space-between; gap:16px; padding-bottom:18px; border-bottom:1px solid var(--line); font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:650; }
+    .brand { display:flex; align-items:center; gap:10px; }
+    .brand-mark { width:14px; height:14px; background:var(--orange); box-shadow:5px 5px 0 #d7d2c5; }
+    .edition { color:var(--muted); }
+    .heading { display:flex; align-items:flex-end; justify-content:space-between; gap:24px; margin:24px 0 20px; }
+    h1 { font:normal clamp(36px,4vw,57px)/1.05 Georgia,"Times New Roman",serif; letter-spacing:-.045em; margin:0; }
+    .intro { color:var(--muted); margin:0 0 3px; max-width:300px; font-size:14px; }
+    .show { --stage:#e3e0d7; display:grid; grid-template-columns:minmax(0,1fr) 290px; gap:36px; align-items:stretch; }
+    .viewer { min-width:0; }
+    .stage { position:relative; background:var(--stage); border-radius:5px; display:grid; place-items:center; height:min(59vh,610px); min-height:370px; overflow:hidden; }
+    .stage::before { content:""; position:absolute; inset:0; background:radial-gradient(ellipse at 50% 42%,#ffffff65,transparent 72%); pointer-events:none; }
+    canvas { position:absolute; inset:0; display:block; width:100%; height:100%; object-fit:contain; }
+    .stage-meta { position:absolute; left:19px; right:19px; top:15px; display:flex; justify-content:space-between; color:#74756e; font-size:10px; font-weight:650; letter-spacing:.1em; text-transform:uppercase; pointer-events:none; }
+    .live-dot { display:inline-block; height:5px; width:5px; margin-right:6px; border-radius:50%; background:#8b9667; }
+    .transport { padding-top:18px; }
+    .time-row { display:flex; justify-content:space-between; font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums; margin-bottom:4px; }
+    #current-time { color:var(--ink); font-weight:600; }
+    .scrubber { display:block; width:100%; height:18px; margin:0; accent-color:var(--orange); cursor:pointer; }
+    .buttons { display:flex; align-items:center; gap:10px; margin-top:14px; }
+    .control { border:1px solid #c5c4bc; background:transparent; border-radius:4px; min-height:40px; padding:8px 13px; display:inline-flex; align-items:center; justify-content:center; gap:8px; font-size:12px; font-weight:600; }
+    .control:hover { background:#ffffff65; }
+    .control.primary { color:#fffaf2; background:var(--ink); border-color:var(--ink); min-width:105px; }
+    .control.primary:hover { background:#40433a; }
+    .control svg { height:15px; width:15px; fill:none; stroke:currentColor; stroke-width:1.7; }
+    #fullscreen { margin-left:auto; }
+    .small-note { margin:13px 0 0; font-size:11px; color:var(--muted); }
+    .story { padding-top:6px; display:flex; flex-direction:column; }
+    .eyebrow { font-size:10px; text-transform:uppercase; letter-spacing:.16em; font-weight:700; color:var(--muted); margin:0 0 16px; }
+    .scene-list { display:flex; flex-direction:column; gap:0; }
+    .scene { border:0; border-top:1px solid var(--line); text-align:left; display:grid; grid-template-columns:27px 1fr; gap:7px; padding:18px 8px 18px 0; background:transparent; position:relative; width:100%; transition:color .15s; }
+    .scene:last-child { border-bottom:1px solid var(--line); }
+    .scene:hover { color:var(--orange); }
+    .scene[aria-current="true"] { color:var(--orange); }
+    .scene-num { font-size:10px; color:var(--muted); padding-top:3px; font-variant-numeric:tabular-nums; }
+    .scene-title { display:block; font-size:18px; line-height:1.2; font-weight:600; letter-spacing:-.025em; }
+    .scene-detail { display:block; font-size:12px; font-weight:400; color:var(--muted); margin-top:4px; }
+    .scene-timing { display:block; font-size:10px; color:var(--muted); font-variant-numeric:tabular-nums; margin-top:7px; }
+    .scene[aria-current="true"] .scene-num { color:var(--orange); }
+    .scene[aria-current="true"]::after { content:""; position:absolute; right:2px; top:23px; width:6px; height:6px; border-radius:50%; background:var(--orange); }
+    .story-foot { margin-top:auto; padding-top:24px; display:flex; justify-content:space-between; gap:18px; font-size:11px; color:var(--muted); }
+    .story-foot strong { display:block; color:var(--ink); font-size:19px; font-weight:400; letter-spacing:-.04em; }
+    footer { display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; color:var(--muted); font-size:10px; letter-spacing:.025em; margin-top:25px; border-top:1px solid var(--line); padding-top:13px; }
+    .keyboard { word-spacing:2px; }
+    kbd { font:inherit; color:var(--ink); }
+    .sr-only { position:absolute; width:1px; height:1px; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; }
+    .show:fullscreen, .show.theater { --ink:#f0eee8; --muted:#a9aaa4; --line:#494b45; --stage:#161814; color:var(--ink); background:#161814; width:100%; height:100%; padding:14px 5vw 18px; display:flex; justify-content:center; overflow:auto; }
+    .show.theater { position:fixed; inset:0; z-index:100; }
+    .show:fullscreen .viewer, .show.theater .viewer { width:min(100%,1050px); display:flex; flex-direction:column; }
+    .show:fullscreen .story, .show.theater .story { display:none; }
+    .show:fullscreen .stage, .show.theater .stage { flex:1 1 0; height:auto; min-height:0; background:transparent; }
+    .show:fullscreen .stage::before, .show.theater .stage::before { display:none; }
+    .show:fullscreen canvas, .show.theater canvas { height:100%; width:100%; max-width:100%; }
+    .show:fullscreen .primary, .show.theater .primary { background:#e7e3da; border-color:#e7e3da; color:#20211e; }
+    .show:fullscreen .control:hover, .show.theater .control:hover { background:#ffffff20; }
+    .show:fullscreen .primary:hover, .show.theater .primary:hover { background:#fff; }
+    .show:fullscreen .small-note, .show.theater .small-note { margin-top:8px; }
+    body.theater-open { overflow:hidden; }
+    @media(max-width:860px) {
+      .page { width:calc(100% - 32px); padding-top:20px; }
+      .show { grid-template-columns:minmax(0,1fr) 220px; gap:22px; }
+      .intro { max-width:230px; font-size:12px; }
+      .stage { min-height:340px; height:min(56vh,560px); }
+      .scene { padding:14px 8px 14px 0; }
+      .scene-title { font-size:16px; }
+      .scene[aria-current="true"]::after { top:19px; }
+    }
+    @media(max-width:620px) {
+      .masthead { font-size:9px; letter-spacing:.08em; }
+      .heading { display:block; margin:25px 0 18px; }
+      .intro { margin-top:10px; max-width:none; }
+      .show { display:block; }
+      .stage { min-height:0; height:auto; aspect-ratio:1; }
+      .stage-meta { font-size:8px; left:12px; right:12px; top:10px; }
+      .story { margin-top:28px; padding:0; }
+      .scene-list { display:grid; grid-template-columns:repeat(5,1fr); border-block:1px solid var(--line); }
+      .scene { display:block; padding:12px 3px; border:0; text-align:center; }
+      .scene:last-child { border:0; }
+      .scene-title { font-size:11px; margin-top:4px; }
+      .scene-detail, .scene-timing, .scene::after, .story-foot, .story .eyebrow { display:none!important; }
+      .control { padding:8px 10px; font-size:11px; }
+      .buttons { gap:6px; }
+      footer { margin-top:22px; font-size:9px; }
+      .show:fullscreen, .show.theater { padding-inline:16px; }
+    }
+    @media(prefers-reduced-motion:reduce) { *,*::before,*::after { transition:none!important; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="masthead">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"></span>Pixel Mood Lamp</div>
+      <div class="edition">Project A / Animation 02</div>
+    </header>
+    <div class="heading">
+      <h1>Mood Lamp Animation Preview</h1>
+      <p class="intro">A little mischief, a lot of personality.<br>Five faces in one continuous loop.</p>
+    </div>
+    <section class="show" id="show" aria-label="Emoji animation player">
+      <div class="viewer">
+        <div class="stage">
+          <div class="stage-meta"><span><span class="live-dot"></span>15 × 15 pixel preview</span><span id="stage-scene">01 / Pac-Man</span></div>
+          <canvas id="lamp" width="900" height="900" role="img" aria-label="15 by 15 LED mood lamp animation"></canvas>
+        </div>
+        <div class="transport">
+          <div class="time-row"><span id="current-time">0:00.0</span><span>0:18.0 · loops continuously</span></div>
+          <label class="sr-only" for="seek">Animation position</label>
+          <input class="scrubber" id="seek" type="range" min="0" max="17999" step="1" value="0" aria-valuetext="0 seconds">
+          <div class="buttons">
+            <button class="control primary" id="play" aria-label="Pause animation"><svg id="play-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 4v12M13 4v12"/></svg><span id="play-label">Pause</span></button>
+            <button class="control" id="restart" aria-label="Restart animation"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 8a6 6 0 1 1 0 5M4 3v5h5"/></svg>Replay</button>
+            <button class="control" id="fullscreen" aria-label="Enter full screen"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 3H3v4m10-4h4v4M3 13v4h4m6 0h4v-4"/></svg><span id="fullscreen-label">Full screen</span></button>
+          </div>
+          <p class="small-note">Same pixels and timing as the Arduino sketch. Screen exposure is lifted for viewing.</p>
+          <p class="sr-only" id="status" role="status"></p>
+        </div>
+      </div>
+      <aside class="story" aria-label="Choose a scene">
+        <p class="eyebrow">The running order · tap to jump</p>
+        <nav id="scene-list" class="scene-list" aria-label="Animation scenes"></nav>
+        <div class="story-foot"><span><strong>225</strong>individual pixels</span><span><strong>18 s</strong>one complete loop</span></div>
+      </aside>
+    </section>
+    <footer><span>Made for Elvis's 15 × 15 mood lamp.</span><span class="keyboard"><kbd>Space</kbd> play/pause · <kbd>R</kbd> replay · <kbd>F</kbd> full screen</span></footer>
+  </main>
+  <script id="animation-data" type="application/json">__ANIMATION_JSON__</script>
+  <script>
+    'use strict';
+    const showData = JSON.parse(document.getElementById('animation-data').textContent);
+    const canvas = document.getElementById('lamp');
+    const ctx = canvas.getContext('2d');
+    const seek = document.getElementById('seek');
+    const show = document.getElementById('show');
+    const sceneTitles = ['Pac-Man', 'Laughing', 'Happy', 'Sunglasses', 'Pumpkin'];
+    const sceneDetails = ['A snack on the move.', 'Can’t keep a straight face.', 'A smile, just for you.', 'Here comes the cool part.', 'A little Halloween glow.'];
+    const timeline = [];
+    let sum = 0;
+    for (const entry of showData.timeline) {
+      timeline.push({...entry, start:sum, end:sum + entry.duration});
+      sum += entry.duration;
+    }
+    if (sum !== showData.totalMs) throw new Error('Animation timeline duration mismatch');
+    const sceneButtons = showData.scenes.map((scene, i) => {
+      const button = document.createElement('button');
+      button.className = 'scene';
+      button.type = 'button';
+      button.innerHTML = '<span class="scene-num">0' + (i+1) + '</span><span><span class="scene-title">' + sceneTitles[i] + '</span><span class="scene-detail">' + sceneDetails[i] + '</span><span class="scene-timing">' + timeText(scene.startMs, scene.startMs%1000!==0) + ' — ' + timeText(scene.endMs, scene.endMs%1000!==0) + '</span></span>';
+      button.setAttribute('aria-label', 'Jump to ' + sceneTitles[i]);
+      button.addEventListener('click', () => setPosition(scene.startMs));
+      document.getElementById('scene-list').appendChild(button);
+      return button;
+    });
+
+    let playing = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let position = 0;
+    let anchor = performance.now();
+    let lastFrame = -1;
+    let lastScene = -1;
+
+    function timeText(ms, decimals = true) {
+      const seconds = Math.floor(ms/1000);
+      return Math.floor(seconds/60) + ':' + String(seconds%60).padStart(2,'0') + (decimals ? '.' + Math.floor(ms%1000/100) : '');
+    }
+    function entryAt(ms) {
+      let lo=0, hi=timeline.length-1;
+      while (lo<hi) {
+        const mid=(lo+hi)>>1;
+        if (ms<timeline[mid].end) hi=mid; else lo=mid+1;
+      }
+      return timeline[lo];
+    }
+    function currentPosition(now=performance.now()) {
+      return playing ? ((position+now-anchor)%showData.totalMs) : position;
+    }
+    function setPosition(ms, pause=false) {
+      position=Math.max(0,Math.min(showData.totalMs-1,ms));
+      anchor=performance.now();
+      if (pause) playing=false;
+      updatePlayButton();
+      display(position);
+    }
+    function updatePlayButton() {
+      document.getElementById('play-label').textContent=playing?'Pause':'Play';
+      document.getElementById('play').setAttribute('aria-label', playing?'Pause animation':'Play animation');
+      document.getElementById('play-icon').innerHTML=playing?'<path d="M7 4v12M13 4v12"/>':'<path d="M6 3l10 7-10 7Z"/>';
+    }
+    function togglePlay() {
+      position=currentPosition();
+      anchor=performance.now();
+      playing=!playing;
+      updatePlayButton();
+      display(position);
+    }
+    function replay() {
+      playing=true;
+      setPosition(0);
+    }
+    function roundRect(x,y,w,h,r,fill) {
+      ctx.beginPath(); ctx.roundRect(x,y,w,h,r); ctx.fillStyle=fill; ctx.fill();
+    }
+    function paint(frame) {
+      ctx.clearRect(0,0,900,900);
+      ctx.save();
+      ctx.shadowColor='#251d1c45'; ctx.shadowBlur=34; ctx.shadowOffsetY=19;
+      roundRect(48,48,804,804,12,'#b45b0b');
+      ctx.restore();
+      const shell=ctx.createLinearGradient(50,50,840,850);
+      shell.addColorStop(0,'#ffb139'); shell.addColorStop(.45,'#f49b1c'); shell.addColorStop(1,'#cf7711');
+      roundRect(46,43,808,808,12,shell);
+      ctx.strokeStyle='#ffd78495'; ctx.lineWidth=2; ctx.strokeRect(50,47,800,798);
+      roundRect(88,85,724,724,4,'#733f1450');
+      roundRect(94,91,712,712,3,'#111310');
+      const inset=106, pitch=45.8, side=38.7;
+      const colours=showData.frames[frame];
+      for (let i=0; i<225; i++) {
+        const x=inset+(i%15)*pitch, y=inset+Math.floor(i/15)*pitch;
+        const p=showData.palette[colours[i]];
+        const lit=p[0]+p[1]+p[2]>0;
+        roundRect(x,y,side,side,3,lit?'rgb('+p.join(',')+')':'#292c26');
+        if (lit) {
+          const glow=ctx.createRadialGradient(x+side/2,y+side/2,1,x+side/2,y+side/2,side*.71);
+          glow.addColorStop(0,'#fff6c51c'); glow.addColorStop(1,'#ffffff00');
+          roundRect(x,y,side,side,3,glow);
+          ctx.strokeStyle='rgba('+p.join(',')+',.11)'; ctx.lineWidth=3;
+          ctx.strokeRect(x-1,y-1,side+2,side+2);
+        } else {
+          ctx.strokeStyle='#a7a59314'; ctx.lineWidth=1; ctx.strokeRect(x+.5,y+.5,side-1,side-1);
+        }
+      }
+      for (const [x,y] of [[70,67],[830,67],[70,827],[830,827]]) {
+        ctx.beginPath(); ctx.arc(x,y,7,0,2*Math.PI); ctx.fillStyle='#915210'; ctx.fill();
+        ctx.beginPath(); ctx.arc(x,y-1,5,0,2*Math.PI); ctx.fillStyle='#656560'; ctx.fill();
+        ctx.strokeStyle='#c8c9ba'; ctx.lineWidth=1.3;
+        ctx.beginPath(); ctx.moveTo(x-2,y-3); ctx.lineTo(x+2,y+1); ctx.moveTo(x+2,y-3); ctx.lineTo(x-2,y+1); ctx.stroke();
+      }
+    }
+    function display(ms) {
+      const entry=entryAt(ms);
+      if (entry.frame!==lastFrame) { paint(entry.frame); lastFrame=entry.frame; }
+      if (entry.scene!==lastScene) {
+        sceneButtons.forEach((button,i)=>button.setAttribute('aria-current',String(i===entry.scene)));
+        document.getElementById('stage-scene').textContent='0'+(entry.scene+1)+' / '+sceneTitles[entry.scene];
+        canvas.setAttribute('aria-label','15 by 15 mood lamp showing '+sceneTitles[entry.scene]);
+        lastScene=entry.scene;
+      }
+      seek.value=Math.floor(ms);
+      seek.setAttribute('aria-valuetext',timeText(ms)+' of 18 seconds, '+sceneTitles[entry.scene]);
+      document.getElementById('current-time').textContent=timeText(ms);
+    }
+    function fullscreenLabel() {
+      const expanded=!!document.fullscreenElement || show.classList.contains('theater');
+      document.getElementById('fullscreen-label').textContent=expanded?'Exit full screen':'Full screen';
+      document.getElementById('fullscreen').setAttribute('aria-label',expanded?'Exit full screen':'Enter full screen');
+    }
+    async function toggleFullscreen() {
+      if(document.fullscreenElement) await document.exitFullscreen();
+      else if(show.classList.contains('theater')) {
+        show.classList.remove('theater'); document.body.classList.remove('theater-open');
+      } else {
+        try {
+          if(!show.requestFullscreen) throw new Error('Fullscreen API unavailable');
+          await show.requestFullscreen();
+        } catch {
+          show.classList.add('theater'); document.body.classList.add('theater-open');
+          document.getElementById('status').textContent='Expanded view. Press Escape or Exit full screen to leave.';
+        }
+      }
+      fullscreenLabel();
+    }
+    document.getElementById('play').addEventListener('click',togglePlay);
+    document.getElementById('restart').addEventListener('click',replay);
+    document.getElementById('fullscreen').addEventListener('click',toggleFullscreen);
+    document.addEventListener('fullscreenchange',fullscreenLabel);
+    seek.addEventListener('input',()=>setPosition(Number(seek.value)));
+    document.addEventListener('keydown',event=>{
+      if(event.key==='Escape' && show.classList.contains('theater')) toggleFullscreen();
+      if(event.target.matches('input,button,textarea,select') || event.ctrlKey || event.metaKey || event.altKey) return;
+      if(event.code==='Space') { event.preventDefault(); togglePlay(); }
+      if(event.key.toLowerCase()==='r') replay();
+      if(event.key.toLowerCase()==='f') toggleFullscreen();
+      if(event.key==='ArrowRight' || event.key==='ArrowLeft') {
+        event.preventDefault(); setPosition(currentPosition()+(event.key==='ArrowRight'?250:-250),true);
+      }
+    });
+    // Read-only diagnostics and deterministic seeking for local preview verification.
+    window.emojiPreview=Object.freeze({
+      seek:(ms)=>setPosition(ms,true),
+      snapshot:()=>{const ms=currentPosition(), entry=entryAt(ms);return {ms,playing,frame:entry.frame,scene:entry.scene,pixels:showData.frames[entry.frame].slice()};}
+    });
+    function tick(now) { display(currentPosition(now)); requestAnimationFrame(tick); }
+    updatePlayButton(); display(0); requestAnimationFrame(tick);
+  </script>
+</body>
+</html>
