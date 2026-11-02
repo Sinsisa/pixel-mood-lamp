@@ -2,7 +2,9 @@
 
 A 15 × 15 RGB pixel lamp designed by **Onyedikachi Elvis Ezeoke**: a custom 225-LED PCB, a divided diffuser and an orange enclosure, with programmable faces and animations.
 
-![Working mood lamp](media/working-lamp.jpg)
+![Exploded design of the Pixel Mood Lamp](media/exploded-design.png)
+
+*Original design render showing the enclosure, electronics and diffuser layers. The manufactured prototype below uses an orange enclosure and an external Arduino controller.*
 
 The first panel has been manufactured and assembled. An Arduino Uno drives the demonstrated prototype. This release shares the LED-panel manufacturing files, enclosure STEP files, Arduino sketches and an offline animation preview.
 
@@ -34,7 +36,16 @@ The panel uses WS2812B-2427-V6 LEDs, GRB order and horizontal serpentine address
 | `hardware/enclosure` | Original enclosure and diffuser STEP exports |
 | `media` | Design render and physical prototype photos |
 
+## Design and working prototype
+
 ![Enclosure design render](media/design-render.png)
+
+*Enclosure design render.*
+
+![Working mood lamp](media/working-lamp.jpg)
+
+*The assembled prototype displaying an animation.*
+
 ![Parts before assembly](media/components.jpg)
 
 ## Revision and test notes
