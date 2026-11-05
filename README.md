@@ -6,7 +6,7 @@ A 15 × 15 RGB pixel lamp designed by **Onyedikachi Elvis Ezeoke**: a custom 225
 
 *Original design render showing the enclosure, electronics and diffuser layers. The manufactured prototype below uses an orange enclosure and an external Arduino controller.*
 
-The first panel has been manufactured and assembled. An Arduino Uno drives the demonstrated prototype. This release shares the LED-panel manufacturing files, enclosure STEP files, Arduino sketches and an offline animation preview.
+The first panel has been manufactured and assembled. An Arduino Uno drives the demonstrated prototype. This release shares manufacturing files for both the RGB LED panel and the separate ESP32 control board, enclosure STEP files, Arduino sketches and an offline animation preview. The control board has not been manufactured or hardware-tested; the demonstrated lamp uses an Arduino Uno.
 
 ## Watch the animation
 
@@ -32,7 +32,8 @@ The panel uses WS2812B-2427-V6 LEDs, GRB order and horizontal serpentine address
 | `firmware/PanelAnimationsDemo` | Earlier smile, colour and rainbow demo |
 | `visualizations` | Standalone HTML player and shared frame JSON |
 | `tools` | Python generators and HTML template |
-| `hardware/led-panel` | LED-panel Gerbers, BOM and placement export |
+| `hardware/led-panel` | RGB LED Panel Board Gerbers, BOM and placement export |
+| `hardware/control-board` | Mood Lamp Control Board Gerbers, BOM and placement export; unbuilt design |
 | `hardware/enclosure` | Original enclosure and diffuser STEP exports |
 | `media` | Design render and physical prototype photos |
 
@@ -52,7 +53,7 @@ The panel uses WS2812B-2427-V6 LEDs, GRB order and horizontal serpentine address
 
 This is the **Iteration 1 working prototype**, not a certified consumer product. The optical face and serial chain have been demonstrated. Sustained full-white current, temperature and endurance remain unqualified. An intermittent end-of-chain pixel glitch was reported during handling; check secure DATA/GND wiring and supply voltage if it recurs.
 
-The LED Gerber's corner openings are approximately 6 mm, while the enclosure fastener intent is four M3 × 50 mm screws. Check fit and use appropriate wide washers/centring sleeves rather than assuming a 3 mm PCB hole. The rear plate includes features for the original custom controller; adapt it for your actual controller. The custom rechargeable controller was not manufactured and is not included in this release. Third-party screw, battery and PCB component-body models are also excluded.
+The LED Gerber's corner openings are approximately 6 mm, while the enclosure fastener intent is four M3 × 50 mm screws. Check fit and use appropriate wide washers/centring sleeves rather than assuming a 3 mm PCB hole. The rear plate includes features for the original custom controller; adapt it for your actual controller. The custom rechargeable controller was not manufactured; its manufacturing exports are included under `hardware/control-board` as an unbuilt design, with no claim of hardware validation. Third-party screw, battery and PCB component-body models are also excluded.
 
 On the Uno, the emoji sketch reserves Timer1 for consistent animation timing; do not combine it with Servo or Timer1 PWM without adapting the clock. Compile verification used Arduino AVR 1.8.7 and Adafruit NeoPixel 1.15.5. The HTML shows lifted screen exposure, not calibrated physical brightness.
 
